@@ -1,14 +1,18 @@
 import requests
 from twilio.rest import Client
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+STOCK_API_KEY = os.environ.get("STOCK_API_KEY")
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+ACCOUNT_SID = os.environ.get("ACCOUNT_SID")
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla Inc"
-STOCK_API_KEY = "JCVC3HME30MYMPB3"
-NEWS_API_KEY = "7af40e2b5b344489b9606e3a2db10d6b"
-STOCK_API_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_API_ENDPOINT = "https://newsapi.org/v2/everything"
-TWILIO_AUTH_TOKEN = "753f36976316048a98837ed83f229ab1"
-ACCOUNT_SID = "AC506a201011e6ede329c1abc7c3d61dd2"
+STOCK_API_ENDPOINT = "https://www.alphavantage.co/query"
 
 
 def get_two_last_closing_price() -> (float, float):
@@ -23,7 +27,7 @@ def get_two_last_closing_price() -> (float, float):
     data = response.json()["Time Series (Daily)"]
     data_list = [value for (key, value) in data.items()]
     yesterday_data = data_list[0]
-    before_yesterday_data = data[1]
+    before_yesterday_data = data_list[1]
     yesterday_closing_price = float(yesterday_data['5. adjusted close'])
     before_yesterday_closing_price = float(before_yesterday_data['5. adjusted close'])
 
@@ -71,7 +75,3 @@ if abs(diff_percent * 100) > 5:
 
     for message_text in messages:
         send_message(message_text)
-
-
-
-

@@ -1,10 +1,13 @@
 import requests
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-PIXELA_ENDPOINT = "https://pixe.la/v1/users"
-TOKEN = "thisissecret"
-USERNAME = "tranviet26701"
-GRAPH_ID = "running-graph"
+load_dotenv()
+PIXELA_ENDPOINT = os.environ.get("PIXELA_ENDPOINT")
+TOKEN = os.environ.get("TOKEN")
+USERNAME = os.environ.get("USERNAME")
+GRAPH_ID = os.environ.get("GRAPH_ID")
 
 
 def create_user():

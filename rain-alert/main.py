@@ -1,13 +1,13 @@
 import requests
 import os
 from twilio.rest import Client
+from dotenv import load_dotenv
 
-# api_key = '477c9111e701d9bee6902c68b6263879'
+load_dotenv()
 api_key = os.environ.get("API_KEY")
 my_lat = 10.848160
 my_long = 106.772520
-account_sid = "AC506a201011e6ede329c1abc7c3d61dd2"
-# auth_token = "753f36976316048a98837ed83f229ab1"
+account_sid = os.environ.get("ACCOUNT_SID")
 auth_token = os.environ.get("AUTH_TOKEN")
 client = Client(account_sid, auth_token)
 

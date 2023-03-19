@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
 API_ENDPOINT = "https://trackapi.nutritionix.com/v2/natural/exercise"
 SHEETY_API_ENDPOINT = "https://api.sheety.co/c072070d10ab71b6a7326784fb94992c/workoutTracking/workouts"
 
@@ -72,4 +71,3 @@ while is_on:
                            calories=exercise["nf_calories"])
 
         print(get_workouts())
-
