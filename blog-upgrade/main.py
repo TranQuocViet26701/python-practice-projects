@@ -1,7 +1,8 @@
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from post import Post
+from notification_manager import NotificationManager
 import random
 import time
 
@@ -30,6 +31,7 @@ def random_date():
 posts = requests.get(url="https://api.npoint.io/56e6f9a1df499c2a2546").json()
 post_objects = [Post(post["id"], post["title"], post["subtitle"], post["body"], "Viktor Tran", random_date()) for post in posts]
 
+notification_manager = NotificationManager()
 app = Flask(__name__)
 
 
@@ -43,8 +45,17 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        message = request.form["message"]
+
+        notification_manager.send_email(name, email, phone, message)
+        return render_template("contact.html", message="Successfully sent your message")
+
     return render_template("contact.html")
 
 
@@ -59,3 +70,4 @@ def get_post(post_id):
 
 if __name__ == "__main__":
     app.run()
+
