@@ -1,10 +1,14 @@
 import datetime
-from flask import Flask, render_template, request
-import requests
-from post import Post
+from flask import Flask, render_template, request, redirect, url_for
 from notification_manager import NotificationManager
 import random
 import time
+from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, URL
+from flask_ckeditor import CKEditor, CKEditorField
 
 
 def str_time_prop(start, end, time_format, prop):
@@ -28,16 +32,41 @@ def random_date():
     return str_time_prop("January 01, 2023", datetime.datetime.now().strftime('%B %d, %Y'), '%B %d, %Y', random.random())
 
 
-posts = requests.get(url="https://api.npoint.io/56e6f9a1df499c2a2546").json()
-post_objects = [Post(post["id"], post["title"], post["subtitle"], post["body"], "Viktor Tran", random_date()) for post in posts]
-
 notification_manager = NotificationManager()
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
+Bootstrap(app)
+
+# CONNECT TO DB
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///posts.db"
+db = SQLAlchemy(app)
+
+
+# CONFIGURE TABLE
+class BlogPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(250), unique=True, nullable=False)
+    subtitle = db.Column(db.String(250), nullable=False)
+    date = db.Column(db.String(250), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    author = db.Column(db.String(250), nullable=False)
+    img_url = db.Column(db.String(250), nullable=False)
+
+
+# WTForm
+class CreatePostForm(FlaskForm):
+    title = StringField("Blog Post Title", validators=[DataRequired()])
+    subtitle = StringField("Subtitle", validators=[DataRequired()])
+    author = StringField("Your Name", validators=[DataRequired()])
+    img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
+    body = StringField("Blog Content", validators=[DataRequired()])
+    submit = SubmitField("Submit Post")
 
 
 @app.route("/")
 def home():
-    return render_template("index.html", posts=post_objects)
+    all_posts = db.session.query(BlogPost).all()
+    return render_template("index.html", posts=all_posts)
 
 
 @app.route("/about")
@@ -59,12 +88,9 @@ def contact():
     return render_template("contact.html")
 
 
-@app.route("/post/<post_id>")
-def get_post(post_id):
-    requested_post = None
-    for post in post_objects:
-        if post.id == int(post_id):
-            requested_post = post
+@app.route("/post/<int:post_id>")
+def get_post(post_id: int):
+    requested_post = db.session.query(BlogPost).get(post_id)
     return render_template("post.html", post=requested_post)
 
 
